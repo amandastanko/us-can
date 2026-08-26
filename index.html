@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Border Ledger — U.S.–Canada Trade War Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A121C;
+    --surface:#101B29;
+    --surface-2:#16243611;
+    --card:#132135;
+    --line:#24354D;
+    --text:#E8EDF4;
+    --text-dim:#8FA0B8;
+    --text-faint:#5C6E86;
+    --ca:#E4384A;
+    --ca-dim:#3A1620;
+    --ca-glow:#FF5C6C;
+    --us:#3E7CD6;
+    --us-dim:#152640;
+    --amber:#E8A33D;
+    --green:#3EBD8F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:48px 24px 80px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ===== Header ===== */
+  header{
+    border-bottom:1px solid var(--line);
+    padding-bottom:28px;
+    margin-bottom:36px;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ca);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:7px;height:7px;
+    background:var(--ca);
+    border-radius:50%;
+    box-shadow:0 0 8px var(--ca-glow);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,5vw,44px);
+    line-height:1.08;
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+  }
+  h1 span{color:var(--ca);}
+  .subhead{
+    color:var(--text-dim);
+    font-size:15px;
+    max-width:640px;
+    margin:0;
+  }
+  .timeline{
+    display:flex;
+    gap:0;
+    margin-top:24px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .tl-item{
+    flex:1;
+    padding:12px 16px;
+    border-right:1px solid var(--line);
+  }
+  .tl-item:last-child{border-right:none;}
+  .tl-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);letter-spacing:0.04em;}
+  .tl-label{font-size:13px;margin-top:3px;color:var(--text);}
+  .tl-item.done .tl-date{color:var(--green);}
+  .tl-item.pending .tl-date{color:var(--amber);}
+
+  /* ===== Stat row ===== */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:48px;
+  }
+  .stat{
+    background:var(--surface);
+    padding:20px 18px;
+  }
+  .stat-val{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:28px;
+    line-height:1;
+  }
+  .stat-val.ca{color:var(--ca);}
+  .stat-val.us{color:var(--us);}
+  .stat-label{
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:6px;
+  }
+
+  section{margin-bottom:56px;}
+  .sec-head{margin-bottom:6px;}
+  h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:20px;
+    margin:0 0 4px;
+  }
+  .sec-desc{color:var(--text-dim);font-size:13.5px;margin:0 0 20px;max-width:620px;}
+
+  /* ===== Legend ===== */
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;font-size:12.5px;color:var(--text-dim);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  /* ===== Chart ===== */
+  .chart-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 20px 8px;
+  }
+
+  /* ===== Toggle ===== */
+  .toggle-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .toggle-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    padding:7px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .toggle-btn:hover{border-color:var(--text-faint);color:var(--text);}
+  .toggle-btn.active{
+    background:var(--ca-dim);
+    border-color:var(--ca);
+    color:#FFB3BB;
+  }
+
+  /* ===== Table ===== */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    text-align:left;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    font-weight:500;
+  }
+  tbody td{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    color:var(--text);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.ca-row{background:linear-gradient(90deg, var(--ca-dim), transparent 40%);}
+  tbody tr.ca-row td:first-child{
+    border-left:3px solid var(--ca);
+    padding-left:9px;
+  }
+  tbody tr:not(.ca-row) td:first-child{
+    border-left:3px solid transparent;
+    padding-left:9px;
+  }
+  .flag{font-size:15px;margin-right:6px;}
+  .pct-bar-wrap{display:flex;align-items:center;gap:8px;}
+  .pct-bar-track{flex:1;height:6px;background:var(--surface);border-radius:3px;overflow:hidden;max-width:90px;}
+  .pct-bar-fill{height:100%;border-radius:3px;}
+  .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--text-dim);}
+  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;}
+  .table-scroll table{min-width:520px;}
+
+  /* ===== Border crossing divider ===== */
+  .crossing{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin:0 0 24px;
+  }
+  .crossing-line{
+    flex:1;
+    height:0;
+    border-top:2px dashed var(--line);
+  }
+  .crossing-stamp{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--text-faint);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:5px 14px;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  /* ===== Ledger panels ===== */
+  .ledger-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media(min-width:720px){
+    .ledger-grid{grid-template-columns:1fr 1fr;}
+  }
+  .ledger{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px;
+  }
+  .ledger.us{border-top:3px solid var(--us);}
+  .ledger.ca{border-top:3px solid var(--ca);}
+  .ledger-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:4px;
+  }
+  .ledger-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:15px;
+  }
+  .ledger-badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:12px;
+  }
+  .ledger.us .ledger-badge{background:var(--us-dim);color:#9DC0F2;}
+  .ledger.ca .ledger-badge{background:var(--ca-dim);color:#FFB3BB;}
+  .ledger-sub{font-size:12px;color:var(--text-faint);margin-bottom:16px;}
+  .ledger-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    padding:11px 0;
+    border-top:1px solid var(--line);
+  }
+  .ledger-row:first-of-type{border-top:none;}
+  .lr-cat{font-size:13.5px;}
+  .lr-note{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+  .lr-rate{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    font-size:14px;
+    white-space:nowrap;
+  }
+  .ledger.us .lr-rate{color:var(--us);}
+  .ledger.ca .lr-rate{color:var(--ca);}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding-top:20px;
+    font-size:12px;
+    color:var(--text-faint);
+    line-height:1.7;
+  }
+  footer a{color:var(--text-dim);}
+  .correction{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:0 8px 8px 0;
+    padding:12px 16px;
+    font-size:13px;
+    color:var(--text-dim);
+    margin-bottom:20px;
+  }
+  .correction b{color:var(--amber);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Live trade conflict · Updated Aug 25, 2026</div>
+    <h1>The border ledger<br><span>U.S.–Canada</span> trade war, state by state</h1>
+    <p class="subhead">Who trades with whom, how much, and what it costs — as 50% tariffs hit in both directions.</p>
+    <div class="timeline">
+      <div class="tl-item done"><div class="tl-date">Jul 20, 2026</div><div class="tl-label">Trump signs Section 338 tariff order</div></div>
+      <div class="tl-item done"><div class="tl-date">Aug 22, 2026</div><div class="tl-label">U.S. 50% tariffs take effect</div></div>
+      <div class="tl-item pending"><div class="tl-date">Sep 8, 2026</div><div class="tl-label">Canada's countermeasures land</div></div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val ca">23</div><div class="stat-label">states where Canada is the #1 import partner</div></div>
+    <div class="stat"><div class="stat-val ca">50%</div><div class="stat-label">U.S. tariff on broad Canadian goods</div></div>
+    <div class="stat"><div class="stat-val us">50%</div><div class="stat-label">Canada's matching tariff, effective Sep 8</div></div>
+    <div class="stat"><div class="stat-val">~$20–28B</div><div class="stat-label">annual Canadian exports directly hit</div></div>
+  </div>
+
+  <section>
+    <div class="sec-head"><h2>Where Canada is the top trading partner</h2></div>
+    <p class="sec-desc">Share of each state's total imports coming from Canada (U.S. Census Bureau, Nov 2024). States where Canada ranks <b style="color:var(--ca)">#1</b> are highlighted; every other state's actual #1 partner is shown in gray for context.</p>
+
+    <div class="correction"><b>Worth flagging:</b> Michigan's #1 import partner is actually Mexico (44% of state imports), not Canada — so it doesn't appear in the red rows below. Canada is Michigan's #2.</div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--ca)"></span>Canada is state's #1 partner</span>
+      <span><span class="swatch" style="background:var(--text-faint)"></span>Another country ranks #1</span>
+    </div>
+
+    <div class="toggle-row">
+      <button class="toggle-btn active" data-view="ca-only">Canada-led states only</button>
+      <button class="toggle-btn" data-view="all">All 50 states + D.C.</button>
+    </div>
+
+    <div class="chart-card">
+      <div style="position:relative;width:100%;" id="chart-wrap">
+        <canvas id="stateChart" role="img" aria-label="Horizontal bar chart of U.S. states ranked by share of imports from Canada, with Canada-led states highlighted in red">Chart data available in the table below.</canvas>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Full state-by-state table</h2></div>
+    <p class="sec-desc">Sorted by Canada's share of that state's imports — highest reliance first, then every other state ordered by its actual top partner.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>State</th><th>Top import partner</th><th>Share of imports</th><th>Import value</th></tr>
+        </thead>
+        <tbody id="stateTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>What each side is charging</h2></div>
+    <p class="sec-desc">Tariff rates by category, both directions. Canada's Sept 8 list covers roughly 700 products — the government has confirmed steel/aluminum and named target sectors, but the full per-product schedule isn't published yet.</p>
+
+    <div class="crossing">
+      <div class="crossing-line"></div>
+      <div class="crossing-stamp">Border crossing</div>
+      <div class="crossing-line"></div>
+    </div>
+
+    <div class="ledger-grid">
+      <div class="ledger us">
+        <div class="ledger-head">
+          <div class="ledger-title">U.S. → Canada</div>
+          <div class="ledger-badge">Effective Aug 22, 2026</div>
+        </div>
+        <div class="ledger-sub">Section 338 order, plus standing Section 232 tariffs</div>
+        <div id="usLedger"></div>
+      </div>
+      <div class="ledger ca">
+        <div class="ledger-head">
+          <div class="ledger-title">Canada → U.S.</div>
+          <div class="ledger-badge">Effective Sep 8, 2026</div>
+        </div>
+        <div class="ledger-sub">"Dollar for dollar" countermeasures, ~700 products</div>
+        <div id="caLedger"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · CBC/Reuters/AP/CNN/Al Jazeera/Washington Post reporting on the Aug–Sep 2026 tariff escalation · Blakes LLP tariff timeline · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Not tax or trade-compliance advice.
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const stateData = [
+  {state:"Montana", partner:"Canada", pct:86, val:"$6B", ca:true},
+  {state:"North Dakota", partner:"Canada", pct:75, val:"$3B", ca:true},
+  {state:"Vermont", partner:"Canada", pct:67, val:"$2B", ca:true},
+  {state:"Maine", partner:"Canada", pct:67, val:"$4B", ca:true},
+  {state:"Wyoming", partner:"Canada", pct:66, val:"$656M", ca:true},
+  {state:"Oklahoma", partner:"Canada", pct:50, val:"$8B", ca:true},
+  {state:"West Virginia", partner:"Canada", pct:40, val:"$2B", ca:true},
+  {state:"Minnesota", partner:"Canada", pct:35, val:"$13B", ca:true},
+  {state:"Colorado", partner:"Canada", pct:33, val:"$5B", ca:true},
+  {state:"South Dakota", partner:"Canada", pct:30, val:"$593M", ca:true},
+  {state:"Illinois", partner:"Canada", pct:29, val:"$58B", ca:true},
+  {state:"Washington", partner:"Canada", pct:28, val:"$16B", ca:true},
+  {state:"Connecticut", partner:"Canada", pct:25, val:"$5B", ca:true},
+  {state:"Massachusetts", partner:"Canada", pct:25, val:"$10B", ca:true},
+  {state:"Iowa", partner:"Canada", pct:25, val:"$3B", ca:true},
+  {state:"Ohio", partner:"Canada", pct:22, val:"$18B", ca:true},
+  {state:"New Hampshire", partner:"Canada", pct:22, val:"$2B", ca:true},
+  {state:"Wisconsin", partner:"Canada", pct:17, val:"$6B", ca:true},
+  {state:"Nebraska", partner:"Canada", pct:17, val:"$1B", ca:true},
+  {state:"Kansas", partner:"Canada", pct:15, val:"$2B", ca:true},
+  {state:"Arkansas", partner:"Canada", pct:14, val:"$1B", ca:true},
+  {state:"New York", partner:"Canada", pct:12, val:"$17B", ca:true},
+  {state:"Delaware", partner:"Canada", pct:10, val:"$1B", ca:true},
+  {state:"Idaho", partner:"Malaysia", pct:50, val:"$4B", ca:false},
+  {state:"Texas", partner:"Mexico", pct:40, val:"$146B", ca:false},
+  {state:"Michigan", partner:"Mexico", pct:44, val:"$70B", ca:false},
+  {state:"Indiana", partner:"Ireland", pct:31, val:"$31B", ca:false},
+  {state:"Alaska", partner:"South Korea", pct:33, val:"$1B", ca:false},
+  {state:"Arizona", partner:"Mexico", pct:28, val:"$11B", ca:false},
+  {state:"Hawaii", partner:"South Korea", pct:28, val:"$558M", ca:false},
+  {state:"California", partner:"China", pct:25, val:"$113B", ca:false},
+  {state:"New Mexico", partner:"Mexico", pct:25, val:"$2B", ca:false},
+  {state:"District of Columbia", partner:"Australia", pct:24, val:"$477M", ca:false},
+  {state:"Missouri", partner:"Mexico", pct:23, val:"$5B", ca:false},
+  {state:"Nevada", partner:"China", pct:23, val:"$4B", ca:false},
+  {state:"Rhode Island", partner:"Germany", pct:20, val:"$2B", ca:false},
+  {state:"Utah", partner:"Mexico", pct:20, val:"$4B", ca:false},
+  {state:"Maryland", partner:"Germany", pct:18, val:"$7B", ca:false},
+  {state:"Alabama", partner:"Mexico", pct:17, val:"$6B", ca:false},
+  {state:"Tennessee", partner:"China", pct:17, val:"$19B", ca:false},
+  {state:"North Carolina", partner:"Ireland", pct:14, val:"$11B", ca:false},
+  {state:"Mississippi", partner:"Mexico", pct:15, val:"$3B", ca:false},
+  {state:"South Carolina", partner:"China", pct:15, val:"$8B", ca:false},
+  {state:"Louisiana", partner:"Mexico", pct:14, val:"$4B", ca:false},
+  {state:"Oregon", partner:"Japan", pct:15, val:"$4B", ca:false},
+  {state:"Pennsylvania", partner:"China", pct:13, val:"$15B", ca:false},
+  {state:"Virginia", partner:"China", pct:13, val:"$5B", ca:false},
+  {state:"Kentucky", partner:"Mexico", pct:10, val:"$9B", ca:false},
+  {state:"Georgia", partner:"China", pct:12, val:"$16B", ca:false},
+  {state:"New Jersey", partner:"China", pct:9, val:"$13B", ca:false},
+  {state:"Florida", partner:"China", pct:11, val:"$12B", ca:false}
+];
+
+const caStates = stateData.filter(d => d.ca).sort((a,b)=>b.pct-a.pct);
+const allSorted = [...caStates, ...stateData.filter(d=>!d.ca).sort((a,b)=>b.pct-a.pct)];
+
+function renderTable(rows){
+  const body = document.getElementById('stateTableBody');
+  body.innerHTML = rows.map(d => {
+    const flagEmoji = d.ca ? '\u{1F1E8}\u{1F1E6}' : '';
+    const barColor = d.ca ? '#E4384A' : '#5C6E86';
+    return '<tr class="' + (d.ca ? 'ca-row' : '') + '">' +
+      '<td>' + d.state + '</td>' +
+      '<td>' + flagEmoji + ' ' + d.partner + '</td>' +
+      '<td><div class="pct-bar-wrap"><span class="num">' + d.pct + '%</span><div class="pct-bar-track"><div class="pct-bar-fill" style="width:' + d.pct + '%;background:' + barColor + '"></div></div></div></td>' +
+      '<td class="num">' + d.val + '</td>' +
+    '</tr>';
+  }).join('');
+}
+renderTable(allSorted);
+
+let chart;
+function renderChart(view){
+  const rows = view === 'ca-only' ? caStates : allSorted;
+  const wrap = document.getElementById('chart-wrap');
+  wrap.style.height = Math.max(rows.length * 26 + 40, 200) + 'px';
+  const ctx = document.getElementById('stateChart');
+  const colors = rows.map(d => d.ca ? '#E4384A' : '#3A4A62');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: rows.map(d => d.state),
+      datasets: [{
+        label: 'Share of state imports',
+        data: rows.map(d => d.pct),
+        backgroundColor: colors,
+        borderRadius: 3,
+        barThickness: 14
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (c) => {
+              const d = rows[c.dataIndex];
+              return d.partner + ': ' + d.pct + '% (' + d.val + ')';
+            }
+          }
+        }
+      },
+      scales: {
+        x: { max: 100, ticks: { color: '#8FA0B8', font: {size: 11} }, grid: { color: '#1E2E42' } },
+        y: { ticks: { color: '#E8EDF4', font: {size: 11.5} }, grid: { display: false } }
+      }
+    }
+  });
+}
+renderChart('ca-only');
+
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderChart(btn.dataset.view);
+  });
+});
+
+const usTariffs = [
+  {cat:"Dairy, alcohol, apparel, ag goods, building materials, electronics (broad Section 338 list)", rate:"50%", note:"Applies even to CUSMA-compliant goods; no expiry"},
+  {cat:"Steel & aluminum", rate:"50%", note:"Section 232, standing since mid-2025"},
+  {cat:"Automobiles & auto parts", rate:"25%", note:"Section 232"},
+  {cat:"Copper, lumber, furniture, heavy vehicles, semiconductors", rate:"Varies", note:"Separate Section 232 actions, product-specific rates"},
+  {cat:"Energy & oil", rate:"10%*", note:"*Original 2025 baseline; scope narrowed after court challenges"}
+];
+const caTariffs = [
+  {cat:"Steel & aluminum", rate:"50%", note:"Doubled from 25%, matching U.S. rate"},
+  {cat:"Dairy", rate:"15–50%", note:"Named target sector, exact rate pending"},
+  {cat:"Appliances & electronics", rate:"15–50%", note:"Named target sector, exact rate pending"},
+  {cat:"Agricultural equipment", rate:"15–50%", note:"Named target sector, exact rate pending"},
+  {cat:"Pulp & paper", rate:"15–50%", note:"Named target sector, exact rate pending"},
+  {cat:"~700 other goods", rate:"15–50%", note:"Full schedule due closer to Sep 8"}
+];
+
+document.getElementById('usLedger').innerHTML = usTariffs.map(t =>
+  '<div class="ledger-row"><div><div class="lr-cat">' + t.cat + '</div><div class="lr-note">' + t.note + '</div></div><div class="lr-rate">' + t.rate + '</div></div>'
+).join('');
+document.getElementById('caLedger').innerHTML = caTariffs.map(t =>
+  '<div class="ledger-row"><div><div class="lr-cat">' + t.cat + '</div><div class="lr-note">' + t.note + '</div></div><div class="lr-rate">' + t.rate + '</div></div>'
+).join('');
+</script>
+</body>
+</html>
