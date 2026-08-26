@@ -283,9 +283,45 @@
     font-weight:600;
     font-size:14px;
     white-space:nowrap;
+    text-align:right;
+  }
+  .lr-rate-sub{
+    font-family:'JetBrains Mono',monospace;
+    font-style:italic;
+    font-weight:500;
+    font-size:11px;
+    color:var(--text-faint);
+    white-space:nowrap;
+    text-align:right;
+    margin-top:2px;
   }
   .ledger.us .lr-rate{color:var(--us);}
   .ledger.ca .lr-rate{color:var(--ca);}
+
+  .lr-group{padding:11px 0;border-top:1px solid var(--line);}
+  .lr-group:first-of-type{border-top:none;}
+  .lr-group-head{font-size:13.5px;margin-bottom:2px;}
+  .lr-group-note{font-size:11.5px;color:var(--text-faint);margin-bottom:10px;}
+  .lr-sub-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    padding:8px 0 8px 16px;
+    border-left:2px solid var(--line);
+    margin-top:6px;
+  }
+  .lr-sub-label{font-size:12.5px;color:var(--text-dim);}
+  .lr-sub-note{font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .lr-sub-rate{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+    white-space:nowrap;
+    text-align:right;
+  }
+  .ledger.us .lr-sub-rate{color:var(--us);}
+  .ledger.ca .lr-sub-rate{color:var(--ca);}
 
   footer{
     border-top:1px solid var(--line);
@@ -367,7 +403,7 @@
 
   <section>
     <div class="sec-head"><h2>What each side is charging</h2></div>
-    <p class="sec-desc">Tariff rates by category, both directions. Canada's Sept 8 list covers roughly 700 products — the government has confirmed steel/aluminum and named target sectors, but the full per-product schedule isn't published yet.</p>
+    <p class="sec-desc">Tariff rates by category, both directions. Canada's Sept 8 list covers roughly 700 products — the government has confirmed steel/aluminum and named target sectors, but the full per-product schedule isn't published yet. Toggle below to compare against the 2024 baseline, when nearly everything crossed the border duty-free under USMCA.</p>
 
     <div class="crossing">
       <div class="crossing-line"></div>
@@ -375,28 +411,33 @@
       <div class="crossing-line"></div>
     </div>
 
+    <div class="toggle-row" id="eraToggle">
+      <button class="toggle-btn active" data-era="current">Current (2026)</button>
+      <button class="toggle-btn" data-era="historical">Historical (2024, pre-trade-war)</button>
+    </div>
+
     <div class="ledger-grid">
       <div class="ledger us">
         <div class="ledger-head">
           <div class="ledger-title">U.S. → Canada</div>
-          <div class="ledger-badge">Effective Aug 22, 2026</div>
+          <div class="ledger-badge" id="usBadge">Effective Aug 22, 2026</div>
         </div>
-        <div class="ledger-sub">Section 338 order, plus standing Section 232 tariffs</div>
+        <div class="ledger-sub" id="usSub">Section 338 order, plus standing Section 232 tariffs</div>
         <div id="usLedger"></div>
       </div>
       <div class="ledger ca">
         <div class="ledger-head">
           <div class="ledger-title">Canada → U.S.</div>
-          <div class="ledger-badge">Effective Sep 8, 2026</div>
+          <div class="ledger-badge" id="caBadge">Effective Sep 8, 2026</div>
         </div>
-        <div class="ledger-sub">"Dollar for dollar" countermeasures, ~700 products</div>
+        <div class="ledger-sub" id="caSub">"Dollar for dollar" countermeasures, ~700 products</div>
         <div id="caLedger"></div>
       </div>
     </div>
   </section>
 
   <footer>
-    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · CBC/Reuters/AP/CNN/Al Jazeera/Washington Post reporting on the Aug–Sep 2026 tariff escalation · Blakes LLP tariff timeline · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Not tax or trade-compliance advice.
+    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · CBC/Reuters/AP/CNN/Al Jazeera/Washington Post reporting on the Aug–Sep 2026 tariff escalation · Blakes LLP and Avalara tariff timelines · Congressional Research Service (USMCA baseline, softwood lumber AD/CVD) · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Historical figures reflect general 2024 USMCA-era rates and don't capture every product-specific exception. Not tax or trade-compliance advice.
   </footer>
 
 </div>
@@ -527,28 +568,83 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
   });
 });
 
-const usTariffs = [
-  {cat:"Dairy, alcohol, apparel, ag goods, building materials, electronics (broad Section 338 list)", rate:"50%", note:"Applies even to CUSMA-compliant goods; no expiry"},
-  {cat:"Steel & aluminum", rate:"50%", note:"Section 232, standing since mid-2025"},
-  {cat:"Automobiles & auto parts", rate:"25%", note:"Section 232"},
-  {cat:"Copper, lumber, furniture, heavy vehicles, semiconductors", rate:"Varies", note:"Separate Section 232 actions, product-specific rates"},
-  {cat:"Energy & oil", rate:"10%*", note:"*Original 2025 baseline; scope narrowed after court challenges"}
-];
-const caTariffs = [
-  {cat:"Steel & aluminum", rate:"50%", note:"Doubled from 25%, matching U.S. rate"},
-  {cat:"Dairy", rate:"15–50%", note:"Named target sector, exact rate pending"},
-  {cat:"Appliances & electronics", rate:"15–50%", note:"Named target sector, exact rate pending"},
-  {cat:"Agricultural equipment", rate:"15–50%", note:"Named target sector, exact rate pending"},
-  {cat:"Pulp & paper", rate:"15–50%", note:"Named target sector, exact rate pending"},
-  {cat:"~700 other goods", rate:"15–50%", note:"Full schedule due closer to Sep 8"}
-];
+const tariffData = {
+  current: {
+    usBadge: "Effective Aug 22, 2026",
+    usSub: "Section 338 order, plus standing Section 232 tariffs",
+    caBadge: "Effective Sep 8, 2026",
+    caSub: "\"Dollar for dollar\" countermeasures, ~700 products",
+    us: [
+      {cat:"Dairy, alcohol, apparel, ag goods, building materials, electronics (broad Section 338 list)", rate:"50%", note:"Applies even to CUSMA-compliant goods; no expiry"},
+      {cat:"Steel & aluminum", rate:"50%", note:"Section 232, standing since mid-2025"},
+      {cat:"Automobiles & auto parts", rate:"25%", note:"Section 232"},
+      {cat:"Softwood lumber", rate:"~14.5%", note:"Longstanding AD/CVD, largely unchanged by the new round"},
+      {cat:"Copper, furniture, heavy vehicles, semiconductors", rate:"Varies", note:"Separate Section 232 actions, product-specific rates"},
+      {cat:"Energy & oil", rate:"10%*", note:"*Original 2025 baseline; scope narrowed after court challenges"}
+    ],
+    ca: [
+      {cat:"Steel & aluminum", rate:"50%", note:"Doubled from 25%, matching U.S. rate"},
+      {cat:"Dairy", rate:"15–50%", note:"Named target sector, exact rate pending"},
+      {cat:"Appliances & electronics", rate:"15–50%", note:"Named target sector, exact rate pending"},
+      {cat:"Agricultural equipment", rate:"15–50%", note:"Named target sector, exact rate pending"},
+      {cat:"Pulp & paper", rate:"15–50%", note:"Named target sector, exact rate pending"},
+      {cat:"~700 other goods", rate:"15–50%", note:"Full schedule due closer to Sep 8"}
+    ]
+  },
+  historical: {
+    usBadge: "2024 baseline",
+    usSub: "Pre-trade-war rates under USMCA/CUSMA",
+    caBadge: "2024 baseline",
+    caSub: "Pre-trade-war rates under USMCA/CUSMA",
+    us: [
+      {cat:"Most goods (USMCA-compliant)", rate:"0%", note:"Duty-free under the free trade agreement"},
+      {cat:"Steel & aluminum", rate:"0%", note:"Section 232 tariffs lifted for Canada under 2019 agreement"},
+      {cat:"Automobiles & auto parts (USMCA-compliant)", rate:"0%", note:"Duty-free"},
+      {cat:"Softwood lumber", rate:"~14.5%", note:"Longstanding anti-dumping/countervailing dispute, unrelated to USMCA"},
+      {cat:"Energy & oil", rate:"0%", note:"Duty-free"}
+    ],
+    ca: [
+      {cat:"Most goods (USMCA-compliant)", rate:"0%", note:"Duty-free under the free trade agreement"},
+      {cat:"Steel & aluminum", rate:"0%", note:"Reciprocal exemption"},
+      {group:"Dairy, poultry & eggs", note:"USMCA tariff-rate quota system", subs:[
+        {label:"Under quota", rate:"0%", note:"Where virtually all trade happens"},
+        {label:"Over quota", rate:"200%", note:"Rarely triggered"}
+      ]},
+      {cat:"Automobiles & auto parts (USMCA-compliant)", rate:"0%", note:"Duty-free"}
+    ]
+  }
+};
 
-document.getElementById('usLedger').innerHTML = usTariffs.map(t =>
-  '<div class="ledger-row"><div><div class="lr-cat">' + t.cat + '</div><div class="lr-note">' + t.note + '</div></div><div class="lr-rate">' + t.rate + '</div></div>'
-).join('');
-document.getElementById('caLedger').innerHTML = caTariffs.map(t =>
-  '<div class="ledger-row"><div><div class="lr-cat">' + t.cat + '</div><div class="lr-note">' + t.note + '</div></div><div class="lr-rate">' + t.rate + '</div></div>'
-).join('');
+function renderLedgerRows(entries){
+  return entries.map(t => {
+    if(t.group){
+      const subsHtml = t.subs.map(s =>
+        '<div class="lr-sub-row"><div><div class="lr-sub-label">' + s.label + '</div><div class="lr-sub-note">' + s.note + '</div></div><div class="lr-sub-rate">' + s.rate + '</div></div>'
+      ).join('');
+      return '<div class="lr-group"><div class="lr-group-head">' + t.group + '</div><div class="lr-group-note">' + t.note + '</div>' + subsHtml + '</div>';
+    }
+    return '<div class="ledger-row"><div><div class="lr-cat">' + t.cat + '</div><div class="lr-note">' + t.note + '</div></div><div><div class="lr-rate">' + t.rate + '</div>' + (t.subrate ? '<div class="lr-rate-sub">' + t.subrate + '</div>' : '') + '</div></div>';
+  }).join('');
+}
+
+function renderLedgers(era){
+  const d = tariffData[era];
+  document.getElementById('usBadge').textContent = d.usBadge;
+  document.getElementById('usSub').textContent = d.usSub;
+  document.getElementById('caBadge').textContent = d.caBadge;
+  document.getElementById('caSub').textContent = d.caSub;
+  document.getElementById('usLedger').innerHTML = renderLedgerRows(d.us);
+  document.getElementById('caLedger').innerHTML = renderLedgerRows(d.ca);
+}
+renderLedgers('current');
+
+document.querySelectorAll('#eraToggle .toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#eraToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLedgers(btn.dataset.era);
+  });
+});
 </script>
 </body>
 </html>
