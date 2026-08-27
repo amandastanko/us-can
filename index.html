@@ -103,6 +103,125 @@
     .tl-item:last-child{border-bottom:none;}
   }
 
+  /* ===== Timeline visualization ===== */
+  .tl-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-size:12px;color:var(--text-dim);}
+  .tl-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .tl-dot-sample{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .pending-sample{
+    width:8px;height:8px;background:transparent;
+    border:2px dashed var(--amber);
+  }
+  .viz-track-wrap{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:28px 20px 18px;
+    overflow-x:auto;
+  }
+  .viz-track{
+    display:flex;
+    align-items:flex-start;
+    position:relative;
+    min-width:1100px;
+    padding-top:14px;
+  }
+  .viz-track::before{
+    content:'';
+    position:absolute;
+    top:14px;
+    left:0;
+    right:0;
+    height:2px;
+    background:var(--line);
+  }
+  .viz-node{
+    flex:1;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:pointer;
+    padding:0 4px;
+  }
+  .viz-dot{
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--text-faint);
+    border:3px solid var(--ink);
+    box-shadow:0 0 0 1px var(--line);
+    transition:transform .15s;
+    z-index:1;
+  }
+  .viz-node:hover .viz-dot{transform:scale(1.25);}
+  .viz-node.active .viz-dot{transform:scale(1.35);box-shadow:0 0 0 3px currentColor;}
+  .viz-node.dot-us .viz-dot{background:var(--us);color:var(--us);}
+  .viz-node.dot-ca .viz-dot{background:var(--ca);color:var(--ca);}
+  .viz-node.dot-legal .viz-dot{background:var(--amber);color:var(--amber);}
+  .viz-node.dot-neutral .viz-dot{background:var(--text-faint);color:var(--text-faint);}
+  .viz-node.dot-pending .viz-dot{
+    background:transparent;
+    border:2px dashed var(--amber);
+    width:12px;height:12px;
+  }
+  .viz-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--text-faint);
+    margin-top:10px;
+    white-space:nowrap;
+    text-align:center;
+  }
+  .viz-node.active .viz-date{color:var(--text);}
+  .viz-label-mini{
+    font-size:10.5px;
+    color:var(--text-dim);
+    margin-top:4px;
+    text-align:center;
+    max-width:90px;
+    line-height:1.3;
+  }
+  .viz-detail{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px;
+    margin-top:14px;
+  }
+  .viz-detail-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--text-faint);
+    letter-spacing:0.04em;
+    margin-bottom:6px;
+  }
+  .viz-detail-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .viz-detail-rate{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    font-weight:600;
+    padding:2px 10px;
+    border-radius:12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+  }
+  .viz-detail-body{
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:1.6;
+  }
+  @media(max-width:640px){
+    .viz-track-wrap{padding:22px 14px 14px;}
+  }
+
   /* ===== Stat row ===== */
   .stats{
     display:grid;
@@ -356,12 +475,6 @@
     <div class="eyebrow">Live trade conflict · Updated Aug 27, 2026</div>
     <h1>The border ledger<br><span>U.S.–Canada</span> trade war, state by state</h1>
     <p class="subhead">Who trades with whom, how much, and what it costs — as 50% tariffs hit in both directions.</p>
-    <div class="timeline">
-      <div class="tl-item done"><div class="tl-date">Jul 20, 2026</div><div class="tl-label">Trump signs Section 338 tariff order</div></div>
-      <div class="tl-item done"><div class="tl-date">Aug 21, 2026</div><div class="tl-label">U.S.–Canada trade talks collapse hours before deadline</div></div>
-      <div class="tl-item done"><div class="tl-date">Aug 22, 2026</div><div class="tl-label">U.S. 50% tariffs take effect · Carney: "You're at war when you get attacked"</div></div>
-      <div class="tl-item pending"><div class="tl-date">Sep 8, 2026</div><div class="tl-label">Canada's countermeasures land</div></div>
-    </div>
   </header>
 
   <div class="stats">
@@ -370,6 +483,25 @@
     <div class="stat"><div class="stat-val us">50%</div><div class="stat-label">Canada's matching tariff, effective Sep 8</div></div>
     <div class="stat"><div class="stat-val">~$20B</div><div class="stat-label">tariffs each side is imposing — symmetric, "dollar for dollar"</div></div>
   </div>
+
+  <section>
+    <div class="sec-head"><h2>How we got here</h2></div>
+    <p class="sec-desc">Every tariff move since Trump's first term, including the legal back-and-forth — a Supreme Court ruling wiped out one entire round in February 2026. Tap or click any point for details.</p>
+
+    <div class="tl-legend">
+      <span><span class="tl-dot-sample" style="background:var(--text-faint)"></span>Baseline / neutral</span>
+      <span><span class="tl-dot-sample" style="background:var(--us)"></span>U.S. action</span>
+      <span><span class="tl-dot-sample" style="background:var(--ca)"></span>Canada action</span>
+      <span><span class="tl-dot-sample" style="background:var(--amber)"></span>Legal / court</span>
+      <span><span class="tl-dot-sample pending-sample"></span>Pending</span>
+    </div>
+
+    <div class="viz-track-wrap">
+      <div class="viz-track" id="vizTrack"></div>
+    </div>
+
+    <div class="viz-detail" id="vizDetail"></div>
+  </section>
 
   <section>
     <div class="sec-head"><h2>Where Canada is the top trading partner</h2></div>
@@ -443,13 +575,71 @@
   </section>
 
   <footer>
-    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · NPR, CBC, Reuters, AP, CNN, Al Jazeera, Washington Post reporting on the Aug–Sep 2026 tariff escalation, including the Aug 21 collapse of U.S.–Canada trade talks · Blakes LLP and Avalara tariff timelines · Congressional Research Service (USMCA baseline, softwood lumber AD/CVD) · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Historical figures reflect general 2024 USMCA-era rates and don't capture every product-specific exception. Not tax or trade-compliance advice.
+    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · NPR, CBC, Reuters, AP, CNN, Al Jazeera, Washington Post reporting on the Aug–Sep 2026 tariff escalation, including the Aug 21 collapse of U.S.–Canada trade talks · Blakes, MLT Aikins, Wiley, Morrison Foerster, and Holland & Knight legal bulletins on the Section 338 proclamations and the Feb 2026 Supreme Court ruling in <i>Learning Resources, Inc. v. Trump</i> · Congressional Research Service (USMCA baseline, softwood lumber AD/CVD) · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Historical figures reflect general 2024 USMCA-era rates and don't capture every product-specific exception. Not tax or trade-compliance advice.
   </footer>
 
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+const tlEvents = [
+  {date:"2018–2019", cat:"us", title:"First Trump-era tariffs on Canada", rate:"25% / 10%",
+   body:"Section 232 tariffs of 25% on steel and 10% on aluminum imposed on Canada during Trump's first term. Removed under a bilateral agreement in May 2019."},
+  {date:"2019–2025", cat:"neutral", title:"USMCA baseline", rate:"0%",
+   body:"Nearly all goods cross the border duty-free under USMCA. This is the pre-trade-war era referenced throughout this dashboard."},
+  {date:"Feb 1, 2025", cat:"us", title:"Trump signs IEEPA tariff order", rate:"25% / 10%",
+   body:"Executive orders impose a 25% tariff on most Canadian goods and 10% on energy, citing fentanyl trafficking and border security under emergency powers (IEEPA)."},
+  {date:"Mar 4, 2025", cat:"ca", title:"Tariffs take effect; Canada retaliates", rate:"25%",
+   body:"The IEEPA tariffs take effect. Canada announces 25% retaliatory tariffs on CA$30B of U.S. goods, set to expand to CA$155B (~US$106B) within three weeks."},
+  {date:"Mid-2025", cat:"us", title:"Steel & aluminum tariffs doubled", rate:"50%",
+   body:"Separately from the IEEPA tariffs, Section 232 steel and aluminum tariffs rise from 25%/10% to a flat 50%. Copper is later added to this Section 232 track."},
+  {date:"Jun 2025", cat:"ca", title:"Talks collapse over digital tax", rate:"50%",
+   body:"Trump terminates trade talks over Canada's digital services tax. Canada responds with a steel import quota carrying a 50% surcharge on anything over it."},
+  {date:"Jul 11 – Aug 1, 2025", cat:"us", title:"Tariff rate raised to 35%", rate:"35%",
+   body:"Trump announces via Truth Social that the IEEPA tariff rate will rise to 35% on non-USMCA-compliant goods, effective Aug 1. Energy and critical minerals stay at 10%."},
+  {date:"Feb 20, 2026", cat:"legal", title:"Supreme Court strikes down the tariffs", rate:"Invalidated",
+   body:"In Learning Resources, Inc. v. Trump, the Court rules 6–3 that IEEPA does not authorize the President to impose tariffs at all — wiping out the legal basis for the 25%/35% Canada tariffs (and similar tariffs on dozens of other countries)."},
+  {date:"Feb 24, 2026", cat:"us", title:"Brief reset: new 10% global tariff", rate:"10%",
+   body:"Within hours of the ruling, Trump pivots to a different legal authority (Section 122 of the Trade Act of 1974), imposing a temporary 10% global tariff — with USMCA-compliant goods exempted. Canada's effective rate briefly drops sharply."},
+  {date:"Jul 20, 2026", cat:"us", title:"Section 338 proclamations signed", rate:"50%",
+   body:"Trump invokes Section 338 of the Tariff Act of 1930 — never used before — to impose 50% tariffs on Canadian dairy, alcohol, and a broad \"motor vehicles\" category that actually spans 500+ product types (cement, furniture, apparel, toys, and more). Applies even to USMCA-compliant goods. Covers ~$20B in annual imports."},
+  {date:"Jul 24, 2026", cat:"neutral", title:"10% global tariff expires", rate:"Expired",
+   body:"Section 122's statutory 150-day limit runs out, ending the brief global 10% tariff. The Section 338 tariffs (above) remain the operative measure against Canada."},
+  {date:"Aug 21–22, 2026", cat:"us", title:"Talks collapse; 50% tariffs take effect", rate:"50%",
+   body:"Negotiations fall apart hours before the deadline. The Section 338 tariffs take effect at 12:01am ET Aug 22. Carney: \"You're at war when you get attacked. We got attacked.\" Canada announces it will match dollar for dollar starting Sept 8."},
+  {date:"Sep 8, 2026", cat:"pending", title:"Canada's countermeasures land", rate:"15–50%",
+   body:"Canada's retaliatory tariffs take effect, covering ~$20B of U.S. goods across steel, dairy, appliances, farm equipment, pulp & paper, and electronics. Exact per-category rates are still pending as of this writing."}
+];
+
+function renderTimelineViz(){
+  const track = document.getElementById('vizTrack');
+  track.innerHTML = tlEvents.map((e,i) =>
+    '<div class="viz-node dot-' + e.cat + '" data-i="' + i + '">' +
+      '<div class="viz-dot"></div>' +
+      '<div class="viz-date">' + e.date + '</div>' +
+      '<div class="viz-label-mini">' + e.title + '</div>' +
+    '</div>'
+  ).join('');
+
+  function showDetail(i){
+    const e = tlEvents[i];
+    document.querySelectorAll('.viz-node').forEach(n => n.classList.remove('active'));
+    document.querySelector('.viz-node[data-i="' + i + '"]').classList.add('active');
+    document.getElementById('vizDetail').innerHTML =
+      '<div class="viz-detail-date">' + e.date + '</div>' +
+      '<div class="viz-detail-title">' + e.title + '<span class="viz-detail-rate">' + e.rate + '</span></div>' +
+      '<div class="viz-detail-body">' + e.body + '</div>';
+  }
+
+  track.querySelectorAll('.viz-node').forEach(node => {
+    node.addEventListener('click', () => showDetail(parseInt(node.dataset.i)));
+  });
+
+  // Default to the most recent completed event
+  showDetail(11);
+}
+renderTimelineViz();
+
 const stateData = [
   {state:"Montana", partner:"Canada", pct:86, val:"$6B", ca:true},
   {state:"North Dakota", partner:"Canada", pct:75, val:"$3B", ca:true},
