@@ -583,6 +583,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const tlEvents = [
+  {date:"1994–2017", cat:"neutral", title:"NAFTA baseline", rate:"0%",
+   body:"Under NAFTA (in effect since 1994), nearly all goods cross the U.S.–Canada border duty-free — the status quo for over two decades before Trump's first tariffs."},
   {date:"2018–2019", cat:"us", title:"First Trump-era tariffs on Canada", rate:"25% / 10%",
    body:"Section 232 tariffs of 25% on steel and 10% on aluminum imposed on Canada during Trump's first term. Removed under a bilateral agreement in May 2019."},
   {date:"2019–2025", cat:"neutral", title:"USMCA baseline", rate:"0%",
@@ -636,7 +638,7 @@ function renderTimelineViz(){
   });
 
   // Default to the most recent completed event
-  showDetail(11);
+  showDetail(12);
 }
 renderTimelineViz();
 
