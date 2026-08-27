@@ -97,6 +97,11 @@
   .tl-label{font-size:13px;margin-top:3px;color:var(--text);}
   .tl-item.done .tl-date{color:var(--green);}
   .tl-item.pending .tl-date{color:var(--amber);}
+  @media(max-width:640px){
+    .timeline{flex-direction:column;}
+    .tl-item{border-right:none;border-bottom:1px solid var(--line);}
+    .tl-item:last-child{border-bottom:none;}
+  }
 
   /* ===== Stat row ===== */
   .stats{
@@ -348,12 +353,13 @@
 <div class="wrap">
 
   <header>
-    <div class="eyebrow">Live trade conflict · Updated Aug 25, 2026</div>
+    <div class="eyebrow">Live trade conflict · Updated Aug 27, 2026</div>
     <h1>The border ledger<br><span>U.S.–Canada</span> trade war, state by state</h1>
     <p class="subhead">Who trades with whom, how much, and what it costs — as 50% tariffs hit in both directions.</p>
     <div class="timeline">
       <div class="tl-item done"><div class="tl-date">Jul 20, 2026</div><div class="tl-label">Trump signs Section 338 tariff order</div></div>
-      <div class="tl-item done"><div class="tl-date">Aug 22, 2026</div><div class="tl-label">U.S. 50% tariffs take effect</div></div>
+      <div class="tl-item done"><div class="tl-date">Aug 21, 2026</div><div class="tl-label">U.S.–Canada trade talks collapse hours before deadline</div></div>
+      <div class="tl-item done"><div class="tl-date">Aug 22, 2026</div><div class="tl-label">U.S. 50% tariffs take effect · Carney: "You're at war when you get attacked"</div></div>
       <div class="tl-item pending"><div class="tl-date">Sep 8, 2026</div><div class="tl-label">Canada's countermeasures land</div></div>
     </div>
   </header>
@@ -362,7 +368,7 @@
     <div class="stat"><div class="stat-val ca">23</div><div class="stat-label">states where Canada is the #1 import partner</div></div>
     <div class="stat"><div class="stat-val ca">50%</div><div class="stat-label">U.S. tariff on broad Canadian goods</div></div>
     <div class="stat"><div class="stat-val us">50%</div><div class="stat-label">Canada's matching tariff, effective Sep 8</div></div>
-    <div class="stat"><div class="stat-val">~$20–28B</div><div class="stat-label">annual Canadian exports directly hit</div></div>
+    <div class="stat"><div class="stat-val">~$20B</div><div class="stat-label">tariffs each side is imposing — symmetric, "dollar for dollar"</div></div>
   </div>
 
   <section>
@@ -437,7 +443,7 @@
   </section>
 
   <footer>
-    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · CBC/Reuters/AP/CNN/Al Jazeera/Washington Post reporting on the Aug–Sep 2026 tariff escalation · Blakes LLP and Avalara tariff timelines · Congressional Research Service (USMCA baseline, softwood lumber AD/CVD) · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Historical figures reflect general 2024 USMCA-era rates and don't capture every product-specific exception. Not tax or trade-compliance advice.
+    Sources: U.S. Census Bureau state import data via Visual Capitalist (Nov 2024 figures, published Feb 2025) · NPR, CBC, Reuters, AP, CNN, Al Jazeera, Washington Post reporting on the Aug–Sep 2026 tariff escalation, including the Aug 21 collapse of U.S.–Canada trade talks · Blakes LLP and Avalara tariff timelines · Congressional Research Service (USMCA baseline, softwood lumber AD/CVD) · Canada Department of Finance. Import-share data predates the current tariff round and reflects trade patterns, not post-tariff volumes, which are expected to shift. Canada's Sept 8 category-level rates will be finalized by Ottawa closer to the effective date — treat the ranges here as directional, not final. Historical figures reflect general 2024 USMCA-era rates and don't capture every product-specific exception. Not tax or trade-compliance advice.
   </footer>
 
 </div>
