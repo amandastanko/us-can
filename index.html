@@ -609,8 +609,10 @@ const tlEvents = [
    body:"Section 122's statutory 150-day limit runs out, ending the brief global 10% tariff. The Section 338 tariffs (above) remain the operative measure against Canada."},
   {date:"Aug 21–22, 2026", cat:"us", title:"Talks collapse; 50% tariffs take effect", rate:"50%",
    body:"Negotiations fall apart hours before the deadline. The Section 338 tariffs take effect at 12:01am ET Aug 22. Carney: \"You're at war when you get attacked. We got attacked.\" Canada announces it will match dollar for dollar starting Sept 8."},
+  {date:"Aug 27, 2026", cat:"us", title:"Trump renames Lake Ontario \"Lake America\"", rate:"Symbolic",
+   body:"Trump signs an executive order renaming Lake Ontario to \"Lake America,\" effective immediately, directing the Interior Department to update federal maps and records within 30 days. \"We have a gulf and we have a lake. Now all we need is an ocean,\" he said, referencing last year's Gulf of Mexico → Gulf of America order. Carney responded on X that the name \"Ontario\" comes from the Wendat word Ontari'io — predating both Canada's Confederation and the U.S. Declaration of Independence. The order only binds U.S. federal agencies; it has no legal effect on Canada or international usage."},
   {date:"Sep 8, 2026", cat:"pending", title:"Canada's countermeasures land", rate:"15–50%",
-   body:"Canada's retaliatory tariffs take effect, covering ~$20B of U.S. goods across steel, dairy, appliances, farm equipment, pulp & paper, and electronics. Exact per-category rates are still pending as of this writing."}
+   body:"Canada's retaliatory tariffs take effect, covering ~$20B of U.S. goods across steel, dairy, appliances, farm equipment, pulp & paper, and electronics. On Aug 26, Canada said it would pare back planned tariffs on seafood and fish products specifically \"to protect against broader economic harms\" — a small early softening. Exact per-category rates otherwise still pending as of this writing."}
 ];
 
 function renderTimelineViz(){
@@ -638,7 +640,7 @@ function renderTimelineViz(){
   });
 
   // Default to the most recent completed event
-  showDetail(12);
+  showDetail(13);
 }
 renderTimelineViz();
 
@@ -786,7 +788,7 @@ const tariffData = {
       {cat:"Appliances & electronics", rate:"15–50%", note:"Named target sector, exact rate pending"},
       {cat:"Agricultural equipment", rate:"15–50%", note:"Named target sector, exact rate pending"},
       {cat:"Pulp & paper", rate:"15–50%", note:"Named target sector, exact rate pending"},
-      {cat:"~700 other goods", rate:"15–50%", note:"Full schedule due closer to Sep 8"}
+      {cat:"~700 other goods", rate:"15–50%", note:"Full schedule due closer to Sep 8 · seafood & fish pared back Aug 26 \"to protect against broader economic harms\""}
     ]
   },
   historical: {
